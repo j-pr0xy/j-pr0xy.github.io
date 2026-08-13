@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="J-Proxy secure proxy service">
+  <title>J-Proxy — Sign In</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#f5f3ff;--card:rgba(255,255,255,.92);--ink:#17203a;--muted:#69718a;
+      --primary:#635bff;--primary-dark:#5148ee;--line:#e4e4f1;--danger:#c0395b;
+      --shadow:0 24px 70px rgba(78,65,150,.16);--radius:20px
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:
+      radial-gradient(circle at 15% 15%,rgba(151,132,255,.28),transparent 30%),
+      radial-gradient(circle at 85% 80%,rgba(119,183,255,.22),transparent 30%),
+      linear-gradient(135deg,#f8f7ff 0%,#eef1ff 100%);display:grid;place-items:center;padding:24px}
+    .shell{width:min(1060px,100%);display:grid;grid-template-columns:1.05fr .95fr;gap:28px;align-items:center}
+    .hero{padding:40px}
+    .brand{display:flex;align-items:center;gap:12px;font-size:26px;font-weight:800;letter-spacing:-.04em}
+    .brand-mark{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#6f63ff,#7aa7ff);display:grid;place-items:center;color:#fff;font-size:23px;font-weight:900;box-shadow:0 10px 25px rgba(99,91,255,.25)}
+    .hero h1{font-size:clamp(42px,5vw,64px);line-height:1.02;letter-spacing:-.055em;margin:70px 0 18px}
+    .hero p{max-width:520px;color:var(--muted);font-size:19px;line-height:1.6;margin:0}
+    .pill{display:inline-flex;margin-top:28px;padding:9px 13px;border:1px solid #dddafa;border-radius:999px;background:rgba(255,255,255,.55);color:#5d58a8;font-size:13px;font-weight:700}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.85);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px;backdrop-filter:blur(16px)}
+    .tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line);margin-bottom:25px}
+    .tab{border:0;background:transparent;padding:12px 8px;font:inherit;font-weight:750;color:#8a8fa3;cursor:pointer;position:relative}
+    .tab.active{color:var(--primary)}
+    .tab.active:after{content:"";position:absolute;left:12%;right:12%;bottom:-1px;height:3px;border-radius:4px;background:var(--primary)}
+    h2{margin:0 0 7px;font-size:27px;letter-spacing:-.03em}
+    .sub{margin:0 0 24px;color:var(--muted);font-size:14px;line-height:1.5}
+    label{display:block;font-size:13px;font-weight:750;margin:16px 0 7px}
+    input{width:100%;height:48px;border:1px solid #dcddec;border-radius:11px;padding:0 14px;background:#fff;color:var(--ink);font:inherit;outline:none;transition:.15s}
+    input:focus{border-color:#8c86ff;box-shadow:0 0 0 4px rgba(99,91,255,.1)}
+    .password-wrap{position:relative}.password-wrap input{padding-right:74px}
+    .show{position:absolute;right:8px;top:7px;height:34px;border:0;background:transparent;color:#646a82;font-weight:700;cursor:pointer}
+    .row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
+    .check{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+    .check input{width:16px;height:16px;accent-color:var(--primary)}
+    a{color:var(--primary);text-decoration:none;font-weight:650}.link-btn{border:0;background:none;color:var(--primary);font:inherit;font-weight:650;cursor:pointer;padding:0}
+    .primary{width:100%;height:50px;border:0;border-radius:11px;background:linear-gradient(135deg,var(--primary),#776fff);color:#fff;font:inherit;font-weight:800;cursor:pointer;margin-top:22px;box-shadow:0 10px 25px rgba(99,91,255,.22)}
+    .primary:hover{background:linear-gradient(135deg,var(--primary-dark),#6c64f5)}.primary:disabled{opacity:.6;cursor:not-allowed}
+    .message{min-height:21px;margin-top:14px;font-size:13px;line-height:1.5}.error{color:var(--danger)}.success{color:#16845b}
+    .terms{font-size:12px;color:#85899c;text-align:center;line-height:1.55;margin:20px 0 0}
+    .form-hidden{display:none}
+    .footer{text-align:center;color:#8b8fa2;font-size:12px;margin-top:22px}
+    @media(max-width:800px){.shell{grid-template-columns:1fr}.hero{padding:8px 4px 0;text-align:center}.hero p{margin:auto}.hero h1{margin:38px 0 14px}.brand{justify-content:center}.pill{margin-top:20px}.card{padding:26px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="brand"><div class="brand-mark">J</div>J-Proxy</div>
+      <h1>Private access.<br>Simple control.</h1>
+      <p>Secure proxy access for scripts, applications, and everyday browsing — managed from one account.</p>
+      <div class="pill">Built for developers & privacy-conscious users</div>
+    </section>
+
+    <section>
+      <div class="card">
+        <div class="tabs">
+          <button class="tab active" id="signin-tab" type="button">Sign In</button>
+          <button class="tab" id="signup-tab" type="button">Sign Up</button>
+        </div>
+
+        <div id="signin-form">
+          <h2>Welcome back</h2>
+          <p class="sub">Sign in to manage your J-Proxy account.</p>
+          <form id="login">
+            <label for="login-email">Email</label>
+            <input id="login-email" type="email" autocomplete="email" required>
+
+            <label for="login-password">Password</label>
+            <div class="password-wrap">
+              <input id="login-password" type="password" autocomplete="current-password" minlength="8" required>
+              <button class="show" type="button" data-target="login-password">Show</button>
+            </div>
+
+            <div class="row">
+              <label class="check"><input id="remember" type="checkbox" checked> Remember me</label>
+              <button class="link-btn" type="button" id="reset">Forgot password?</button>
+            </div>
+
+            <button class="primary" id="login-button" type="submit">Sign In</button>
+          </form>
+        </div>
+
+        <div id="signup-form" class="form-hidden">
+          <h2>Create your account</h2>
+          <p class="sub">Start with an account, then choose your proxy plan.</p>
+          <form id="register">
+            <label for="signup-email">Email</label>
+            <input id="signup-email" type="email" autocomplete="email" required>
+
+            <label for="signup-password">Password</label>
+            <div class="password-wrap">
+              <input id="signup-password" type="password" autocomplete="new-password" minlength="8" required>
+              <button class="show" type="button" data-target="signup-password">Show</button>
+            </div>
+
+            <label for="signup-password-confirm">Confirm password</label>
+            <input id="signup-password-confirm" type="password" autocomplete="new-password" minlength="8" required>
+
+            <button class="primary" id="signup-button" type="submit">Create Account</button>
+          </form>
+        </div>
+
+        <div id="message" class="message" aria-live="polite"></div>
+        <p class="terms">By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+      </div>
+      <div class="footer">© 2026 J-Proxy. All rights reserved.</div>
+    </section>
+  </main>
+
+<script>
+  // Public client-side values only. NEVER put the Supabase service/secret key here.
+  const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "YOUR_PUBLISHABLE_KEY";
+  const { createClient } = window.supabase;
+  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+  const $ = (id) => document.getElementById(id);
+  const message = $("message");
+
+  function setMessage(text, type = "") {
+    message.textContent = text;
+    message.className = "message " + type;
+  }
+
+  function setTab(signup) {
+    $("signin-tab").classList.toggle("active", !signup);
+    $("signup-tab").classList.toggle("active", signup);
+    $("signin-form").classList.toggle("form-hidden", signup);
+    $("signup-form").classList.toggle("form-hidden", !signup);
+    setMessage("");
+  }
+
+  $("signin-tab").onclick = () => setTab(false);
+  $("signup-tab").onclick = () => setTab(true);
+
+  document.querySelectorAll(".show").forEach((button) => {
+    button.addEventListener("click", () => {
+      const input = $(button.dataset.target);
+      const visible = input.type === "text";
+      input.type = visible ? "password" : "text";
+      button.textContent = visible ? "Show" : "Hide";
+    });
+  });
+
+  $("login").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = $("login-button");
+    button.disabled = true;
+    button.textContent = "Signing in...";
+    setMessage("");
+
+    try {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: $("login-email").value.trim(),
+        password: $("login-password").value
+      });
+
+      if (error) throw error;
+      if (!data.session) throw new Error("No authenticated session was returned.");
+
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      console.error(error);
+      setMessage(error.message || "Unable to sign in.", "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Sign In";
+    }
+  });
+
+  $("register").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = $("signup-button");
+    const email = $("signup-email").value.trim();
+    const password = $("signup-password").value;
+    const confirmation = $("signup-password-confirm").value;
+
+    if (password !== confirmation) {
+      setMessage("Passwords do not match.", "error");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Creating account...";
+    setMessage("");
+
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: window.location.origin + "/dashboard.html" }
+      });
+
+      if (error) throw error;
+
+      if (data.session) {
+        window.location.href = "dashboard.html";
+        return;
+      }
+
+      setMessage("Account created. Check your email to confirm your address, then sign in.", "success");
+      $("register").reset();
+    } catch (error) {
+      console.error(error);
+      setMessage(error.message || "Unable to create account.", "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Create Account";
+    }
+  });
+
+  $("reset").addEventListener("click", async () => {
+    const email = $("login-email").value.trim();
+    if (!email) {
+      setMessage("Enter your email address first.", "error");
+      $("login-email").focus();
+      return;
+    }
+
+    try {
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + "/login.html"
+      });
+      if (error) throw error;
+      setMessage("If an account exists for that email, a password reset link has been sent.", "success");
+    } catch (error) {
+      console.error(error);
+      setMessage(error.message || "Unable to send the reset email.", "error");
+    }
+  });
+
+  // If already authenticated, skip the login page.
+  (async () => {
+    const { data } = await supabaseClient.auth.getSession();
+    if (data.session) window.location.href = "dashboard.html";
+  })();
+</script>
+</body>
+</html>

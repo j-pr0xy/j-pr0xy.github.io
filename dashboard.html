@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="J-Proxy account dashboard">
+  <title>J-Proxy — Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#f6f5fc;--card:#fff;--ink:#17203a;--muted:#70778e;--primary:#635bff;--line:#e8e7f1;--green:#16845b;--shadow:0 10px 35px rgba(53,46,110,.07)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    .layout{min-height:100vh;display:grid;grid-template-columns:250px 1fr}.sidebar{background:rgba(255,255,255,.82);border-right:1px solid var(--line);padding:24px 16px;display:flex;flex-direction:column}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:850;font-size:22px;letter-spacing:-.04em;padding:8px 10px 28px}.mark{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,#6f63ff,#7aa7ff);color:#fff;display:grid;place-items:center;font-weight:900}
+    nav{display:grid;gap:5px}.nav{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:#596078;text-decoration:none;font-size:14px;font-weight:700}.nav.active,.nav:hover{background:#eeedff;color:var(--primary)}
+    .upgrade{margin-top:auto;padding:17px;border:1px solid #e3e0ff;border-radius:15px;background:linear-gradient(145deg,#f6f4ff,#fff)}.upgrade strong{display:block;font-size:14px}.upgrade p{font-size:12px;color:var(--muted);line-height:1.45;margin:7px 0 12px}
+    .button{border:0;border-radius:9px;background:var(--primary);color:#fff;font-weight:750;padding:10px 13px;cursor:pointer}.button.secondary{background:#efedff;color:var(--primary)}
+    .account{margin-top:16px;border-top:1px solid var(--line);padding:18px 8px 0;display:flex;align-items:center;gap:10px}.avatar{width:35px;height:35px;border-radius:50%;background:#e2e0ff;color:#5148ee;display:grid;place-items:center;font-weight:800;font-size:12px}.account-text{min-width:0}.account-text strong,.account-text span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-text strong{font-size:12px}.account-text span{font-size:11px;color:var(--muted)}
+    main{min-width:0}.top{height:76px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:space-between;padding:0 34px}.top h1{margin:0;font-size:23px;letter-spacing:-.03em}.top p{margin:4px 0 0;color:var(--muted);font-size:12px}.logout{border:0;background:transparent;color:#6b7185;font-weight:700;cursor:pointer}
+    .content{padding:30px 34px;max-width:1450px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.stat,.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.stat{padding:20px}.stat-label{font-size:12px;color:var(--muted);font-weight:700}.stat-value{font-size:24px;font-weight:850;letter-spacing:-.04em;margin-top:8px}.stat-link{font-size:12px;color:var(--primary);font-weight:750;margin-top:8px}
+    .panel{margin-top:18px;padding:22px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:15px}.panel h2{font-size:17px;margin:0}.panel-sub{font-size:12px;color:var(--muted);margin:4px 0 0}
+    .usage{margin-top:20px;height:12px;border-radius:99px;background:#ecebf4;overflow:hidden}.usage-bar{height:100%;width:0;background:linear-gradient(90deg,#635bff,#8d86ff);border-radius:inherit;transition:width .4s}.usage-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:9px}
+    .keybox{margin-top:18px;border:1px dashed #d8d6e8;border-radius:13px;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:18px}.key-main{min-width:0}.key-label{font-size:11px;color:var(--muted);font-weight:700}.key-placeholder{margin-top:5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;word-break:break-all;color:#4f556b}.status{display:inline-flex;align-items:center;gap:6px;background:#e8f8f1;color:var(--green);border-radius:99px;padding:6px 9px;font-size:11px;font-weight:800;white-space:nowrap}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.step{border:1px solid var(--line);border-radius:13px;padding:17px}.step-num{width:29px;height:29px;border-radius:9px;background:#eeedff;color:var(--primary);display:grid;place-items:center;font-weight:850;font-size:12px}.step strong{display:block;font-size:13px;margin-top:12px}.step p{font-size:12px;color:var(--muted);line-height:1.5;margin:6px 0 0}
+    .notice{margin-top:18px;padding:13px 15px;border-radius:11px;background:#f1f0ff;color:#5d5a8d;font-size:12px;line-height:1.5}.error{background:#fff0f3;color:#a82e4e}.loading{opacity:.65}
+    @media(max-width:1050px){.grid{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:1fr}}@media(max-width:760px){.layout{grid-template-columns:1fr}.sidebar{display:none}.top{padding:0 20px}.content{padding:20px}.grid{grid-template-columns:1fr 1fr}}@media(max-width:500px){.grid{grid-template-columns:1fr}.keybox{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><div class="mark">J</div>J-Proxy</div>
+    <nav>
+      <a class="nav active" href="dashboard.html">⌂&nbsp; Dashboard</a>
+      <a class="nav" href="#proxy-key">⌕&nbsp; Proxy Keys</a>
+      <a class="nav" href="#usage">▥&nbsp; Usage</a>
+      <a class="nav" href="#plan">◇&nbsp; Plans</a>
+      <a class="nav" href="#support">?&nbsp; Support</a>
+    </nav>
+
+    <div class="upgrade">
+      <strong>Need more bandwidth?</strong>
+      <p>Upgrade your plan when you're ready for more proxy usage.</p>
+      <button class="button secondary" type="button" disabled>View Plans</button>
+    </div>
+
+    <div class="account">
+      <div class="avatar" id="avatar">--</div>
+      <div class="account-text">
+        <strong id="account-name">Loading...</strong>
+        <span id="account-email">Loading...</span>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="top">
+      <div>
+        <h1 id="welcome">Dashboard</h1>
+        <p>Manage your J-Proxy account and proxy access.</p>
+      </div>
+      <button class="logout" id="logout">Sign out</button>
+    </header>
+
+    <div class="content loading" id="content">
+      <section class="grid">
+        <article class="stat" id="plan">
+          <div class="stat-label">CURRENT PLAN</div>
+          <div class="stat-value" id="plan-value">—</div>
+          <div class="stat-link">Manage plan</div>
+        </article>
+        <article class="stat">
+          <div class="stat-label">USAGE</div>
+          <div class="stat-value" id="usage-value">—</div>
+          <div class="stat-link" id="usage-sub">—</div>
+        </article>
+        <article class="stat">
+          <div class="stat-label">ACCOUNT STATUS</div>
+          <div class="stat-value" id="status-value">—</div>
+          <div class="stat-link">Account</div>
+        </article>
+        <article class="stat">
+          <div class="stat-label">PROXY KEYS</div>
+          <div class="stat-value">0</div>
+          <div class="stat-link">Coming next</div>
+        </article>
+      </section>
+
+      <section class="panel" id="usage">
+        <div class="panel-head">
+          <div>
+            <h2>Bandwidth usage</h2>
+            <div class="panel-sub">Your current monthly allocation.</div>
+          </div>
+        </div>
+        <div class="usage"><div class="usage-bar" id="usage-bar"></div></div>
+        <div class="usage-meta"><span id="used-label">0 B used</span><span id="quota-label">0 B total</span></div>
+      </section>
+
+      <section class="panel" id="proxy-key">
+        <div class="panel-head">
+          <div>
+            <h2>Proxy Key</h2>
+            <div class="panel-sub">Your programmatic proxy credential will appear here.</div>
+          </div>
+          <button class="button" type="button" disabled>Generate Key</button>
+        </div>
+        <div class="keybox">
+          <div class="key-main">
+            <div class="key-label">PROXY ACCESS KEY</div>
+            <div class="key-placeholder">No proxy key generated yet.</div>
+          </div>
+          <span class="status">● Ready</span>
+        </div>
+        <div class="notice">Proxy-key generation will be connected to the Cloudflare Worker after the <code>POST /api/proxy</code> endpoint is implemented.</div>
+      </section>
+
+      <section class="panel" id="support">
+        <h2>Quick start</h2>
+        <div class="panel-sub">Once your proxy key is available, you'll be able to use J-Proxy from scripts and applications.</div>
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><strong>Create a proxy key</strong><p>Generate a dedicated credential for proxy traffic.</p></div>
+          <div class="step"><div class="step-num">2</div><strong>Configure your application</strong><p>Use the endpoint and key with curl, Python, Node, or other proxy-aware software.</p></div>
+          <div class="step"><div class="step-num">3</div><strong>Start using J-Proxy</strong><p>Monitor bandwidth and rotate or revoke keys from your account.</p></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Public client-side values only. NEVER put the Supabase service/secret key here.
+  const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "YOUR_PUBLISHABLE_KEY";
+  const WORKER_URL = "https://YOUR-WORKER.workers.dev";
+
+  const { createClient } = window.supabase;
+  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+  const $ = (id) => document.getElementById(id);
+
+  function formatBytes(bytes) {
+    const n = Number(bytes);
+    if (!Number.isFinite(n) || n <= 0) return "0 B";
+    const units = ["B", "KB", "MB", "GB", "TB"];
+    const i = Math.min(Math.floor(Math.log(n) / Math.log(1000)), units.length - 1);
+    return `${(n / Math.pow(1000, i)).toFixed(i === 0 ? 0 : 2)} ${units[i]}`;
+  }
+
+  function initials(email) {
+    return (email || "J").split("@")[0].slice(0, 2).toUpperCase();
+  }
+
+  async function loadDashboard() {
+    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+
+    if (sessionError || !session) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    $("account-email").textContent = session.user.email || "";
+    $("account-name").textContent = session.user.email?.split("@")[0] || "J-Proxy user";
+    $("avatar").textContent = initials(session.user.email);
+
+    const response = await fetch(`${WORKER_URL}/api/me`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${session.access_token}`
+      },
+      cache: "no-store"
+    });
+
+    if (response.status === 401) {
+      await supabaseClient.auth.signOut();
+      window.location.href = "login.html";
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error("Unable to load your account from the API.");
+    }
+
+    const data = await response.json();
+    const profile = data.profile;
+
+    $("plan-value").textContent = profile.plan || "—";
+    $("status-value").textContent = profile.status || "—";
+
+    const quota = Number(profile.quota_bytes) || 0;
+    // Usage is not in the current profiles schema yet, so show zero until
+    // the usage endpoint/table exists.
+    const used = 0;
+    const percent = quota > 0 ? Math.min((used / quota) * 100, 100) : 0;
+
+    $("usage-value").textContent = formatBytes(used);
+    $("usage-sub").textContent = quota ? `/ ${formatBytes(quota)}` : "No quota assigned";
+    $("used-label").textContent = `${formatBytes(used)} used`;
+    $("quota-label").textContent = `${formatBytes(quota)} total`;
+    $("usage-bar").style.width = `${percent}%`;
+
+    const name = profile.status === "active" ? (session.user.email?.split("@")[0] || "there") : "there";
+    $("welcome").textContent = `Welcome, ${name}!`;
+    $("content").classList.remove("loading");
+  }
+
+  $("logout").addEventListener("click", async () => {
+    $("logout").disabled = true;
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) console.error(error);
+    window.location.href = "login.html";
+  });
+
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_OUT" || !session) {
+      window.location.href = "login.html";
+    }
+  });
+
+  loadDashboard().catch((error) => {
+    console.error(error);
+    $("content").classList.remove("loading");
+    $("content").innerHTML = `<div class="panel"><h2>Unable to load dashboard</h2><div class="notice error">${error.message}</div></div>`;
+  });
+</script>
+</body>
+</html>
