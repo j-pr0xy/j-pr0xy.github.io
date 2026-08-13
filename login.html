@@ -149,31 +149,48 @@
     });
   });
 
-  $("login").addEventListener("submit", async (event) => {
+$("login").addEventListener("submit", async (event) => {
     event.preventDefault();
+
     const button = $("login-button");
+
     button.disabled = true;
     button.textContent = "Signing in...";
     setMessage("");
 
     try {
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email: $("login-email").value.trim(),
-        password: $("login-password").value
-      });
+        const { data, error } =
+            await supabaseClient.auth.signInWithPassword({
+                email: $("login-email").value.trim(),
+                password: $("login-password").value
+            });
 
-      if (error) throw error;
-      if (!data.session) throw new Error("No authenticated session was returned.");
+        if (error) {
+            throw error;
+        }
 
-      window.location.href = "dashboard.html";
+        if (!data.session) {
+            throw new Error(
+                "Login succeeded but no session was returned."
+            );
+        }
+
+        // Login succeeded.
+        window.location.replace("./dashboard.html");
+
     } catch (error) {
-      console.error(error);
-      setMessage(error.message || "Unable to sign in.", "error");
+        console.error(error);
+
+        setMessage(
+            error.message || "Unable to sign in.",
+            "error"
+        );
+
     } finally {
-      button.disabled = false;
-      button.textContent = "Sign In";
+        button.disabled = false;
+        button.textContent = "Sign In";
     }
-  });
+});
 
   $("register").addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -237,10 +254,21 @@
   });
 
   // If already authenticated, skip the login page.
-  (async () => {
-    const { data } = await supabaseClient.auth.getSession();
-    if (data.session) window.location.href = "dashboard.html";
-  })();
+ (async () => {
+    const { data, error } =
+        await supabaseClient.auth.getSession();
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    if (data.session) {
+        window.location.replace(
+            "./dashboard.html"
+        );
+    }
+})();
 </script>
 </body>
 </html>
