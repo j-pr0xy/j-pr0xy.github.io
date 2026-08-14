@@ -1,45 +1,1156 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>J-Proxy — Sign In</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root{--bg:#f5f3ff;--card:#fff;--ink:#171b35;--muted:#70758c;--p:#655df2;--p2:#8178ff;--line:#e7e5f1;--bad:#b83258;--good:#16835a}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:radial-gradient(circle at 15% 15%,#ddd8ff,transparent 30%),radial-gradient(circle at 90% 85%,#d9ebff,transparent 32%),#f7f6ff;display:grid;place-items:center;padding:24px}
-.shell{width:min(1000px,100%);display:grid;grid-template-columns:1fr 430px;gap:50px;align-items:center}.brand{display:flex;align-items:center;gap:11px;font-size:25px;font-weight:850}.mark{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--p),#7faaff);color:#fff;display:grid;place-items:center;box-shadow:0 10px 25px #655df233}.hero h1{font-size:clamp(42px,6vw,66px);line-height:1;letter-spacing:-.06em;margin:65px 0 20px}.hero p{max-width:530px;color:var(--muted);font-size:18px;line-height:1.6}.badge{display:inline-block;margin-top:24px;padding:8px 12px;border:1px solid #dedbfa;background:#ffffff99;border-radius:99px;color:#625ca5;font-size:12px;font-weight:750}
-.card{background:#ffffffed;border:1px solid #fff;border-radius:22px;padding:32px;box-shadow:0 25px 70px #5148a326}.tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line);margin-bottom:27px}.tab{border:0;background:none;padding:12px;font:inherit;font-weight:800;color:#9296a8;cursor:pointer;position:relative}.tab.active{color:var(--p)}.tab.active:after{content:"";position:absolute;bottom:-1px;left:12%;right:12%;height:3px;border-radius:4px;background:var(--p)}
-h2{margin:0 0 7px;font-size:27px}.sub{margin:0 0 22px;color:var(--muted);font-size:14px;line-height:1.5}label.field{display:block;margin:15px 0 7px;font-size:13px;font-weight:750}input[type=email],input[type=password]{width:100%;height:48px;border:1px solid #dad9e7;border-radius:10px;padding:0 13px;font:inherit;color:var(--ink);outline:0}input:focus{border-color:#8a83ff;box-shadow:0 0 0 4px #655df214}.password{position:relative}.password input{padding-right:68px}.show{position:absolute;right:7px;top:7px;height:34px;border:0;background:none;color:#676d83;font-weight:700;cursor:pointer}.row{display:flex;justify-content:space-between;align-items:center;margin-top:13px}.remember{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.remember input{accent-color:var(--p)}.link{border:0;background:none;color:var(--p);font:inherit;font-size:12px;font-weight:750;cursor:pointer}.submit{width:100%;height:49px;margin-top:21px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font:inherit;font-weight:800;cursor:pointer}.submit:disabled{opacity:.6;cursor:not-allowed}.message{min-height:20px;margin-top:14px;font-size:13px}.error{color:var(--bad)}.success{color:var(--good)}.hidden{display:none!important}.terms{text-align:center;color:#898da0;font-size:11px;line-height:1.5;margin-top:19px}.footer{text-align:center;color:#898da0;font-size:11px;margin-top:18px}
-@media(max-width:780px){.shell{grid-template-columns:1fr;gap:25px}.hero{text-align:center}.hero h1{margin:35px 0 15px}.hero p{margin:auto}.badge{margin-top:15px}}
-</style></head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>J-Proxy — Sign In</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #f5f3ff;
+      --card: rgba(255, 255, 255, 0.96);
+      --text: #17182c;
+      --muted: #73758a;
+      --primary: #6557e8;
+      --primary-dark: #5547d3;
+      --border: #e5e2f2;
+      --danger: #b4234d;
+      --success: #16835a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      color: var(--text);
+
+      background:
+        radial-gradient(
+          circle at 10% 10%,
+          rgba(176, 165, 255, 0.45),
+          transparent 32%
+        ),
+        radial-gradient(
+          circle at 90% 90%,
+          rgba(169, 211, 255, 0.42),
+          transparent 35%
+        ),
+        var(--bg);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 24px;
+    }
+
+    .container {
+      width: min(1050px, 100%);
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 70px;
+      align-items: center;
+    }
+
+    .branding {
+      padding: 20px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+
+      font-size: 25px;
+      font-weight: 850;
+      letter-spacing: -0.04em;
+    }
+
+    .logo-mark {
+      width: 43px;
+      height: 43px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 13px;
+
+      color: white;
+      font-weight: 900;
+
+      background:
+        linear-gradient(
+          135deg,
+          #6557e8,
+          #8c9cff
+        );
+
+      box-shadow: 0 12px 30px rgba(101, 87, 232, 0.25);
+    }
+
+    .branding h1 {
+      margin: 70px 0 20px;
+
+      font-size: clamp(42px, 6vw, 67px);
+      line-height: 0.98;
+      letter-spacing: -0.065em;
+    }
+
+    .branding p {
+      max-width: 540px;
+
+      color: var(--muted);
+
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .pill {
+      display: inline-block;
+
+      margin-top: 20px;
+      padding: 8px 12px;
+
+      border: 1px solid #ddd9f6;
+      border-radius: 999px;
+
+      color: #5e5798;
+      background: rgba(255, 255, 255, 0.65);
+
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .card {
+      padding: 32px;
+
+      background: var(--card);
+
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: 22px;
+
+      box-shadow:
+        0 30px 80px rgba(72, 63, 150, 0.18);
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      border-bottom: 1px solid var(--border);
+
+      margin-bottom: 28px;
+    }
+
+    .tab {
+      position: relative;
+
+      padding: 12px;
+
+      border: 0;
+      background: none;
+
+      color: #9495a5;
+
+      font: inherit;
+      font-weight: 800;
+
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: var(--primary);
+    }
+
+    .tab.active::after {
+      content: "";
+
+      position: absolute;
+      left: 12%;
+      right: 12%;
+      bottom: -1px;
+
+      height: 3px;
+
+      border-radius: 4px;
+
+      background: var(--primary);
+    }
+
+    h2 {
+      margin: 0 0 7px;
+
+      font-size: 27px;
+      letter-spacing: -0.035em;
+    }
+
+    .subtitle {
+      margin: 0 0 22px;
+
+      color: var(--muted);
+
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .field {
+      display: block;
+
+      margin: 15px 0 7px;
+
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    input {
+      width: 100%;
+      height: 48px;
+
+      padding: 0 13px;
+
+      border: 1px solid #d9d7e7;
+      border-radius: 10px;
+
+      background: white;
+
+      color: var(--text);
+
+      font: inherit;
+
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #8176f2;
+
+      box-shadow:
+        0 0 0 4px rgba(101, 87, 232, 0.1);
+    }
+
+    .password {
+      position: relative;
+    }
+
+    .password input {
+      padding-right: 70px;
+    }
+
+    .show-password {
+      position: absolute;
+
+      top: 7px;
+      right: 7px;
+
+      height: 34px;
+
+      padding: 0 9px;
+
+      border: 0;
+      background: transparent;
+
+      color: #666a7e;
+
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+    .submit {
+      width: 100%;
+      height: 49px;
+
+      margin-top: 21px;
+
+      border: 0;
+      border-radius: 10px;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--primary),
+          #8176f5
+        );
+
+      color: white;
+
+      font: inherit;
+      font-weight: 800;
+
+      cursor: pointer;
+
+      box-shadow:
+        0 10px 25px rgba(101, 87, 232, 0.22);
+    }
+
+    .submit:hover {
+      background: var(--primary-dark);
+    }
+
+    .submit:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .secondary {
+      width: 100%;
+      height: 47px;
+
+      margin-top: 12px;
+
+      border: 1px solid var(--border);
+      border-radius: 10px;
+
+      background: white;
+
+      color: var(--text);
+
+      font: inherit;
+      font-weight: 750;
+
+      cursor: pointer;
+    }
+
+    .secondary:hover {
+      background: #faf9ff;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      margin-top: 13px;
+    }
+
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+
+      color: var(--muted);
+
+      font-size: 12px;
+    }
+
+    .remember input {
+      width: auto;
+      height: auto;
+    }
+
+    .link {
+      border: 0;
+      background: none;
+
+      padding: 0;
+
+      color: var(--primary);
+
+      font: inherit;
+      font-size: 12px;
+      font-weight: 750;
+
+      cursor: pointer;
+    }
+
+    .message {
+      min-height: 20px;
+
+      margin-top: 14px;
+
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .error {
+      color: var(--danger);
+    }
+
+    .success {
+      color: var(--success);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .wallet-note {
+      margin-top: 12px;
+
+      color: var(--muted);
+
+      font-size: 11px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .terms {
+      margin: 19px 0 0;
+
+      color: #898b9c;
+
+      font-size: 11px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    @media (max-width: 800px) {
+      .container {
+        grid-template-columns: 1fr;
+        gap: 25px;
+      }
+
+      .branding {
+        text-align: center;
+      }
+
+      .branding h1 {
+        margin: 30px 0 15px;
+      }
+
+      .branding p {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+  </style>
+</head>
+
 <body>
-<main class="shell">
-<section class="hero"><div class="brand"><div class="mark">J</div>J-Proxy</div><h1>Private access.<br>Simple control.</h1><p>One account for proxy access across your scripts, applications, and browser traffic.</p><span class="badge">Secure proxy infrastructure</span></section>
-<section><div class="card">
-<div class="tabs"><button class="tab active" id="signinTab" type="button">Sign In</button><button class="tab" id="signupTab" type="button">Sign Up</button></div>
-<section id="signinView"><h2>Welcome back</h2><p class="sub">Sign in to manage your J-Proxy account.</p>
-<form id="signinForm"><label class="field" for="signinEmail">Email</label><input id="signinEmail" type="email" autocomplete="email" required>
-<label class="field" for="signinPassword">Password</label><div class="password"><input id="signinPassword" type="password" autocomplete="current-password" required><button class="show" type="button" data-input="signinPassword">Show</button></div>
-<div class="row"><label class="remember"><input type="checkbox" checked> Remember me</label><button class="link" id="forgot" type="button">Forgot password?</button></div>
-<button class="submit" id="signinButton" type="submit">Sign In</button></form></section>
-<section id="signupView" class="hidden"><h2>Create your account</h2><p class="sub">Create an account, then choose your proxy plan.</p>
-<form id="signupForm"><label class="field" for="signupEmail">Email</label><input id="signupEmail" type="email" autocomplete="email" required>
-<label class="field" for="signupPassword">Password</label><div class="password"><input id="signupPassword" type="password" autocomplete="new-password" minlength="8" required><button class="show" type="button" data-input="signupPassword">Show</button></div>
-<label class="field" for="signupConfirm">Confirm password</label><input id="signupConfirm" type="password" autocomplete="new-password" minlength="8" required>
-<button class="submit" id="signupButton" type="submit">Create Account</button></form></section>
-<div id="message" class="message" aria-live="polite"></div><p class="terms">By continuing, you agree to the J-Proxy Terms of Service and Privacy Policy.</p>
-</div><div class="footer">© 2026 J-Proxy</div></section></main>
+
+<main class="container">
+
+  <section class="branding">
+
+    <div class="logo">
+      <div class="logo-mark">J</div>
+      J-Proxy
+    </div>
+
+    <h1>
+      Private access.<br>
+      Simple control.
+    </h1>
+
+    <p>
+      One account for proxy access across your scripts,
+      applications, and browser traffic.
+    </p>
+
+    <span class="pill">
+      Secure proxy infrastructure
+    </span>
+
+  </section>
+
+
+  <section>
+
+    <div class="card">
+
+      <div class="tabs">
+
+        <button
+          class="tab active"
+          id="signinTab"
+          type="button"
+        >
+          Sign In
+        </button>
+
+        <button
+          class="tab"
+          id="signupTab"
+          type="button"
+        >
+          Sign Up
+        </button>
+
+      </div>
+
+
+      <!-- SIGN IN -->
+
+      <section id="signinView">
+
+        <h2>Welcome back</h2>
+
+        <p class="subtitle">
+          Sign in to manage your J-Proxy account.
+        </p>
+
+        <form id="signinForm">
+
+          <label
+            class="field"
+            for="signinEmail"
+          >
+            Email
+          </label>
+
+          <input
+            id="signinEmail"
+            type="email"
+            autocomplete="email"
+            required
+          >
+
+
+          <label
+            class="field"
+            for="signinPassword"
+          >
+            Password
+          </label>
+
+          <div class="password">
+
+            <input
+              id="signinPassword"
+              type="password"
+              autocomplete="current-password"
+              required
+            >
+
+            <button
+              class="show-password"
+              type="button"
+              data-target="signinPassword"
+            >
+              Show
+            </button>
+
+          </div>
+
+
+          <div class="row">
+
+            <label class="remember">
+              <input
+                id="remember"
+                type="checkbox"
+                checked
+              >
+              Remember me
+            </label>
+
+            <button
+              class="link"
+              id="forgotPassword"
+              type="button"
+            >
+              Forgot password?
+            </button>
+
+          </div>
+
+
+          <button
+            class="submit"
+            id="signinButton"
+            type="submit"
+          >
+            Sign In
+          </button>
+
+        </form>
+
+
+        <!-- Supabase Web3 authentication -->
+
+        <button
+          class="secondary"
+          id="walletButton"
+          type="button"
+        >
+          Connect Wallet
+        </button>
+
+        <div class="wallet-note">
+          Use your configured Supabase Web3 wallet provider.
+        </div>
+
+      </section>
+
+
+      <!-- SIGN UP -->
+
+      <section
+        id="signupView"
+        class="hidden"
+      >
+
+        <h2>Create your account</h2>
+
+        <p class="subtitle">
+          Create an account, then choose your proxy plan.
+        </p>
+
+        <form id="signupForm">
+
+          <label
+            class="field"
+            for="signupEmail"
+          >
+            Email
+          </label>
+
+          <input
+            id="signupEmail"
+            type="email"
+            autocomplete="email"
+            required
+          >
+
+
+          <label
+            class="field"
+            for="signupPassword"
+          >
+            Password
+          </label>
+
+          <div class="password">
+
+            <input
+              id="signupPassword"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              required
+            >
+
+            <button
+              class="show-password"
+              type="button"
+              data-target="signupPassword"
+            >
+              Show
+            </button>
+
+          </div>
+
+
+          <label
+            class="field"
+            for="signupConfirm"
+          >
+            Confirm password
+          </label>
+
+          <input
+            id="signupConfirm"
+            type="password"
+            autocomplete="new-password"
+            minlength="8"
+            required
+          >
+
+
+          <button
+            class="submit"
+            id="signupButton"
+            type="submit"
+          >
+            Create Account
+          </button>
+
+        </form>
+
+
+        <button
+          class="secondary"
+          id="signupWalletButton"
+          type="button"
+        >
+          Create With Wallet
+        </button>
+
+      </section>
+
+
+      <div
+        id="message"
+        class="message"
+        aria-live="polite"
+      ></div>
+
+
+      <p class="terms">
+        By continuing, you agree to the J-Proxy Terms
+        of Service and Privacy Policy.
+      </p>
+
+    </div>
+
+  </section>
+
+</main>
+
+
 <script>
-const SUPABASE_URL="https://YOUR_PROJECT.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY="YOUR_PUBLISHABLE_KEY";
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-const $=id=>document.getElementById(id), message=$("message");
-function msg(text,type=""){message.textContent=text;message.className="message"+(type?" "+type:"")}
-function view(signup){$("signinTab").classList.toggle("active",!signup);$("signupTab").classList.toggle("active",signup);$("signinView").classList.toggle("hidden",signup);$("signupView").classList.toggle("hidden",!signup);msg("")}
-$("signinTab").onclick=()=>view(false);$("signupTab").onclick=()=>view(true);
-document.querySelectorAll(".show").forEach(b=>b.onclick=()=>{const i=$(b.dataset.input),v=i.type==="text";i.type=v?"password":"text";b.textContent=v?"Show":"Hide"});
-$("signinForm").onsubmit=async e=>{e.preventDefault();const b=$("signinButton");b.disabled=true;b.textContent="Signing in...";msg("");try{const{data,error}=await supabase.auth.signInWithPassword({email:$("signinEmail").value.trim(),password:$("signinPassword").value});if(error)throw error;if(!data.session)throw new Error("No session was returned.");window.location.replace("./dashboard.html")}catch(err){console.error(err);msg(err.message||"Unable to sign in.","error")}finally{b.disabled=false;b.textContent="Sign In"}};
-$("signupForm").onsubmit=async e=>{e.preventDefault();const b=$("signupButton"),email=$("signupEmail").value.trim(),password=$("signupPassword").value;if(password!==$("signupConfirm").value){msg("Passwords do not match.","error");return}b.disabled=true;b.textContent="Creating account...";msg("");try{const{data,error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:new URL("./dashboard.html",location.href).href}});if(error)throw error;if(data.session){window.location.replace("./dashboard.html");return}$("signupForm").reset();msg("Account created. Check your email to confirm your account, then sign in.","success")}catch(err){console.error(err);msg(err.message||"Unable to create account.","error")}finally{b.disabled=false;b.textContent="Create Account"}};
-$("forgot").onclick=async()=>{const email=$("signinEmail").value.trim();if(!email){msg("Enter your email first.","error");return}try{const{error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:new URL("./login.html",location.href).href});if(error)throw error;msg("If that account exists, a password reset email has been sent.","success")}catch(err){msg(err.message||"Unable to send the reset email.","error")}};
-(async()=>{const{data,error}=await supabase.auth.getSession();if(!error&&data.session)window.location.replace("./dashboard.html")})();
-</script></body></html>
+/*
+ * ============================================================
+ * J-PROXY FRONTEND CONFIGURATION
+ * ============================================================
+ */
+
+const SUPABASE_URL =
+  "https://YOUR_PROJECT.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "YOUR_PUBLISHABLE_KEY";
+
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+/*
+ * ============================================================
+ * HELPERS
+ * ============================================================
+ */
+
+const $ = (id) =>
+  document.getElementById(id);
+
+
+function showMessage(text, type = "") {
+
+  const element = $("message");
+
+  element.textContent = text;
+
+  element.className =
+    "message" +
+    (type ? ` ${type}` : "");
+}
+
+
+function switchMode(signup) {
+
+  $("signinTab")
+    .classList
+    .toggle("active", !signup);
+
+  $("signupTab")
+    .classList
+    .toggle("active", signup);
+
+  $("signinView")
+    .classList
+    .toggle("hidden", signup);
+
+  $("signupView")
+    .classList
+    .toggle("hidden", !signup);
+
+  showMessage("");
+}
+
+
+/*
+ * ============================================================
+ * TABS
+ * ============================================================
+ */
+
+$("signinTab").addEventListener(
+  "click",
+  () => switchMode(false)
+);
+
+$("signupTab").addEventListener(
+  "click",
+  () => switchMode(true)
+);
+
+
+/*
+ * ============================================================
+ * PASSWORD VISIBILITY
+ * ============================================================
+ */
+
+document
+  .querySelectorAll(".show-password")
+  .forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      const input =
+        $(button.dataset.target);
+
+      const visible =
+        input.type === "text";
+
+      input.type =
+        visible
+          ? "password"
+          : "text";
+
+      button.textContent =
+        visible
+          ? "Show"
+          : "Hide";
+    });
+
+  });
+
+
+/*
+ * ============================================================
+ * EMAIL SIGN IN
+ * ============================================================
+ */
+
+$("signinForm").addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+    const button =
+      $("signinButton");
+
+    button.disabled = true;
+    button.textContent = "Signing in...";
+
+    showMessage("");
+
+    try {
+
+      const email =
+        $("signinEmail")
+          .value
+          .trim();
+
+      const password =
+        $("signinPassword")
+          .value;
+
+      const {
+        data,
+        error
+      } =
+        await supabase.auth
+          .signInWithPassword({
+            email,
+            password
+          });
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data.session) {
+        throw new Error(
+          "Authentication succeeded but no session was returned."
+        );
+      }
+
+      window.location.replace(
+        "./dashboard.html"
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        error.message ||
+        "Unable to sign in.",
+        "error"
+      );
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent = "Sign In";
+    }
+
+  }
+);
+
+
+/*
+ * ============================================================
+ * EMAIL SIGN UP
+ * ============================================================
+ */
+
+$("signupForm").addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+    const email =
+      $("signupEmail")
+        .value
+        .trim();
+
+    const password =
+      $("signupPassword")
+        .value;
+
+    const confirmation =
+      $("signupConfirm")
+        .value;
+
+    if (password !== confirmation) {
+
+      showMessage(
+        "Passwords do not match.",
+        "error"
+      );
+
+      return;
+    }
+
+    const button =
+      $("signupButton");
+
+    button.disabled = true;
+    button.textContent =
+      "Creating account...";
+
+    showMessage("");
+
+    try {
+
+      const redirect =
+        new URL(
+          "./dashboard.html",
+          window.location.href
+        ).href;
+
+      const {
+        data,
+        error
+      } =
+        await supabase.auth.signUp({
+
+          email,
+          password,
+
+          options: {
+            emailRedirectTo: redirect
+          }
+
+        });
+
+      if (error) {
+        throw error;
+      }
+
+
+      /*
+       * If email confirmation is disabled,
+       * Supabase gives us a session immediately.
+       */
+
+      if (data.session) {
+
+        window.location.replace(
+          "./dashboard.html"
+        );
+
+        return;
+      }
+
+
+      /*
+       * If confirmation is enabled,
+       * wait for the user to confirm email.
+       */
+
+      $("signupForm").reset();
+
+      showMessage(
+        "Account created. Check your email to confirm your account, then sign in.",
+        "success"
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        error.message ||
+        "Unable to create account.",
+        "error"
+      );
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent =
+        "Create Account";
+    }
+
+  }
+);
+
+
+/*
+ * ============================================================
+ * PASSWORD RESET
+ * ============================================================
+ */
+
+$("forgotPassword").addEventListener(
+  "click",
+  async () => {
+
+    const email =
+      $("signinEmail")
+        .value
+        .trim();
+
+    if (!email) {
+
+      showMessage(
+        "Enter your email first.",
+        "error"
+      );
+
+      $("signinEmail").focus();
+
+      return;
+    }
+
+    try {
+
+      const redirect =
+        new URL(
+          "./login.html",
+          window.location.href
+        ).href;
+
+      const { error } =
+        await supabase.auth
+          .resetPasswordForEmail(
+            email,
+            {
+              redirectTo: redirect
+            }
+          );
+
+      if (error) {
+        throw error;
+      }
+
+      showMessage(
+        "If the account exists, a password reset email has been sent.",
+        "success"
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        error.message ||
+        "Unable to send the reset email.",
+        "error"
+      );
+    }
+
+  }
+);
+
+
+/*
+ * ============================================================
+ * WEB3 WALLET AUTH
+ * ============================================================
+ *
+ * IMPORTANT:
+ *
+ * The exact Supabase Web3 provider configured in your project
+ * determines the authentication call.
+ *
+ * This intentionally does not fake a provider-specific
+ * implementation.
+ *
+ * Once you tell me which Supabase Web3 provider you enabled,
+ * this handler should be replaced with that provider's
+ * Supabase-supported authentication flow.
+ */
+
+async function walletLogin() {
+
+  showMessage(
+    "Wallet authentication is configured in Supabase, but the exact wallet provider needs to be selected in this frontend.",
+    "error"
+  );
+
+}
+
+
+$("walletButton").addEventListener(
+  "click",
+  walletLogin
+);
+
+$("signupWalletButton").addEventListener(
+  "click",
+  walletLogin
+);
+
+
+/*
+ * ============================================================
+ * EXISTING SESSION CHECK
+ * ============================================================
+ *
+ * This is the ONLY automatic redirect on login.html.
+ * There is deliberately no auth-state redirect listener.
+ */
+
+(async () => {
+
+  const {
+    data,
+    error
+  } =
+    await supabase.auth
+      .getSession();
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+  }
+
+  if (data.session) {
+
+    window.location.replace(
+      "./dashboard.html"
+    );
+  }
+
+})();
+</script>
+
+</body>
+</html>
