@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>J-Proxy — Sign In</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#f5f3ff;--card:#fff;--ink:#171b35;--muted:#70758c;--p:#655df2;--p2:#8178ff;--line:#e7e5f1;--bad:#b83258;--good:#16835a}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:radial-gradient(circle at 15% 15%,#ddd8ff,transparent 30%),radial-gradient(circle at 90% 85%,#d9ebff,transparent 32%),#f7f6ff;display:grid;place-items:center;padding:24px}
+.shell{width:min(1000px,100%);display:grid;grid-template-columns:1fr 430px;gap:50px;align-items:center}.brand{display:flex;align-items:center;gap:11px;font-size:25px;font-weight:850}.mark{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--p),#7faaff);color:#fff;display:grid;place-items:center;box-shadow:0 10px 25px #655df233}.hero h1{font-size:clamp(42px,6vw,66px);line-height:1;letter-spacing:-.06em;margin:65px 0 20px}.hero p{max-width:530px;color:var(--muted);font-size:18px;line-height:1.6}.badge{display:inline-block;margin-top:24px;padding:8px 12px;border:1px solid #dedbfa;background:#ffffff99;border-radius:99px;color:#625ca5;font-size:12px;font-weight:750}
+.card{background:#ffffffed;border:1px solid #fff;border-radius:22px;padding:32px;box-shadow:0 25px 70px #5148a326}.tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line);margin-bottom:27px}.tab{border:0;background:none;padding:12px;font:inherit;font-weight:800;color:#9296a8;cursor:pointer;position:relative}.tab.active{color:var(--p)}.tab.active:after{content:"";position:absolute;bottom:-1px;left:12%;right:12%;height:3px;border-radius:4px;background:var(--p)}
+h2{margin:0 0 7px;font-size:27px}.sub{margin:0 0 22px;color:var(--muted);font-size:14px;line-height:1.5}label.field{display:block;margin:15px 0 7px;font-size:13px;font-weight:750}input[type=email],input[type=password]{width:100%;height:48px;border:1px solid #dad9e7;border-radius:10px;padding:0 13px;font:inherit;color:var(--ink);outline:0}input:focus{border-color:#8a83ff;box-shadow:0 0 0 4px #655df214}.password{position:relative}.password input{padding-right:68px}.show{position:absolute;right:7px;top:7px;height:34px;border:0;background:none;color:#676d83;font-weight:700;cursor:pointer}.row{display:flex;justify-content:space-between;align-items:center;margin-top:13px}.remember{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.remember input{accent-color:var(--p)}.link{border:0;background:none;color:var(--p);font:inherit;font-size:12px;font-weight:750;cursor:pointer}.submit{width:100%;height:49px;margin-top:21px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;font:inherit;font-weight:800;cursor:pointer}.submit:disabled{opacity:.6;cursor:not-allowed}.message{min-height:20px;margin-top:14px;font-size:13px}.error{color:var(--bad)}.success{color:var(--good)}.hidden{display:none!important}.terms{text-align:center;color:#898da0;font-size:11px;line-height:1.5;margin-top:19px}.footer{text-align:center;color:#898da0;font-size:11px;margin-top:18px}
+@media(max-width:780px){.shell{grid-template-columns:1fr;gap:25px}.hero{text-align:center}.hero h1{margin:35px 0 15px}.hero p{margin:auto}.badge{margin-top:15px}}
+</style></head>
+<body>
+<main class="shell">
+<section class="hero"><div class="brand"><div class="mark">J</div>J-Proxy</div><h1>Private access.<br>Simple control.</h1><p>One account for proxy access across your scripts, applications, and browser traffic.</p><span class="badge">Secure proxy infrastructure</span></section>
+<section><div class="card">
+<div class="tabs"><button class="tab active" id="signinTab" type="button">Sign In</button><button class="tab" id="signupTab" type="button">Sign Up</button></div>
+<section id="signinView"><h2>Welcome back</h2><p class="sub">Sign in to manage your J-Proxy account.</p>
+<form id="signinForm"><label class="field" for="signinEmail">Email</label><input id="signinEmail" type="email" autocomplete="email" required>
+<label class="field" for="signinPassword">Password</label><div class="password"><input id="signinPassword" type="password" autocomplete="current-password" required><button class="show" type="button" data-input="signinPassword">Show</button></div>
+<div class="row"><label class="remember"><input type="checkbox" checked> Remember me</label><button class="link" id="forgot" type="button">Forgot password?</button></div>
+<button class="submit" id="signinButton" type="submit">Sign In</button></form></section>
+<section id="signupView" class="hidden"><h2>Create your account</h2><p class="sub">Create an account, then choose your proxy plan.</p>
+<form id="signupForm"><label class="field" for="signupEmail">Email</label><input id="signupEmail" type="email" autocomplete="email" required>
+<label class="field" for="signupPassword">Password</label><div class="password"><input id="signupPassword" type="password" autocomplete="new-password" minlength="8" required><button class="show" type="button" data-input="signupPassword">Show</button></div>
+<label class="field" for="signupConfirm">Confirm password</label><input id="signupConfirm" type="password" autocomplete="new-password" minlength="8" required>
+<button class="submit" id="signupButton" type="submit">Create Account</button></form></section>
+<div id="message" class="message" aria-live="polite"></div><p class="terms">By continuing, you agree to the J-Proxy Terms of Service and Privacy Policy.</p>
+</div><div class="footer">© 2026 J-Proxy</div></section></main>
+<script>
+const SUPABASE_URL="https://YOUR_PROJECT.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="YOUR_PUBLISHABLE_KEY";
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const $=id=>document.getElementById(id), message=$("message");
+function msg(text,type=""){message.textContent=text;message.className="message"+(type?" "+type:"")}
+function view(signup){$("signinTab").classList.toggle("active",!signup);$("signupTab").classList.toggle("active",signup);$("signinView").classList.toggle("hidden",signup);$("signupView").classList.toggle("hidden",!signup);msg("")}
+$("signinTab").onclick=()=>view(false);$("signupTab").onclick=()=>view(true);
+document.querySelectorAll(".show").forEach(b=>b.onclick=()=>{const i=$(b.dataset.input),v=i.type==="text";i.type=v?"password":"text";b.textContent=v?"Show":"Hide"});
+$("signinForm").onsubmit=async e=>{e.preventDefault();const b=$("signinButton");b.disabled=true;b.textContent="Signing in...";msg("");try{const{data,error}=await supabase.auth.signInWithPassword({email:$("signinEmail").value.trim(),password:$("signinPassword").value});if(error)throw error;if(!data.session)throw new Error("No session was returned.");window.location.replace("./dashboard.html")}catch(err){console.error(err);msg(err.message||"Unable to sign in.","error")}finally{b.disabled=false;b.textContent="Sign In"}};
+$("signupForm").onsubmit=async e=>{e.preventDefault();const b=$("signupButton"),email=$("signupEmail").value.trim(),password=$("signupPassword").value;if(password!==$("signupConfirm").value){msg("Passwords do not match.","error");return}b.disabled=true;b.textContent="Creating account...";msg("");try{const{data,error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:new URL("./dashboard.html",location.href).href}});if(error)throw error;if(data.session){window.location.replace("./dashboard.html");return}$("signupForm").reset();msg("Account created. Check your email to confirm your account, then sign in.","success")}catch(err){console.error(err);msg(err.message||"Unable to create account.","error")}finally{b.disabled=false;b.textContent="Create Account"}};
+$("forgot").onclick=async()=>{const email=$("signinEmail").value.trim();if(!email){msg("Enter your email first.","error");return}try{const{error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:new URL("./login.html",location.href).href});if(error)throw error;msg("If that account exists, a password reset email has been sent.","success")}catch(err){msg(err.message||"Unable to send the reset email.","error")}};
+(async()=>{const{data,error}=await supabase.auth.getSession();if(!error&&data.session)window.location.replace("./dashboard.html")})();
+</script></body></html>
