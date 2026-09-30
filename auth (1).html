@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{--bg:#eef1f4;--panel:#fff;--ink:#14212b;--mute:#5b6b78;--line:#cfd7de;--accent:#0f5c7a;--accent-ink:#fff;--err:#b3261e;--ok:#1b6e3c}
+  @media (prefers-color-scheme:dark){:root{--bg:#0e161c;--panel:#16212a;--ink:#e6edf2;--mute:#8fa1ae;--line:#2a3945;--accent:#5fb8d9;--accent-ink:#06222e;--err:#ff8a80;--ok:#7bd69b}}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--bg);color:var(--ink);font:16px/1.5 "Avenir Next","Segoe UI",system-ui,sans-serif}
+  main{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:28px}
+  h1{font:600 26px/1.2 Georgia,"Times New Roman",serif;margin:0 0 4px}
+  p.sub{margin:0 0 20px;color:var(--mute)}
+  .tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+  .tabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;padding:8px;color:var(--mute);font:inherit;cursor:pointer}
+  .tabs button[aria-selected=true]{color:var(--ink);border-color:var(--accent);font-weight:600}
+  label{display:block;font-size:14px;margin:12px 0 4px}
+  input{width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+  button.primary,button.wallet{width:100%;margin-top:16px;padding:11px;border-radius:6px;font:inherit;font-weight:600;cursor:pointer}
+  button.primary{background:var(--accent);color:var(--accent-ink);border:0}
+  button.wallet{margin-top:8px;background:none;color:var(--ink);border:1px solid var(--line)}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  button:disabled{opacity:.6;cursor:wait}
+  .divider{margin:20px 0 4px;color:var(--mute);font-size:14px;text-align:center}
+  #msg{min-height:1.5em;margin:14px 0 0;font-size:14px}
+  #msg.err{color:var(--err)} #msg.ok{color:var(--ok)}
+  dl{margin:16px 0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+  dt{color:var(--mute)} dd{margin:0;word-break:break-all}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <section id="authView">
+    <h1>Welcome</h1>
+    <p class="sub">Use email or connect a wallet.</p>
+
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabLogin" aria-selected="true">Log in</button>
+      <button role="tab" id="tabRegister" aria-selected="false">Register</button>
+    </div>
+
+    <form id="emailForm">
+      <div id="nameRow" hidden>
+        <label for="name">Display name</label>
+        <input id="name" autocomplete="nickname">
+      </div>
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required>
+      <label for="password">Password</label>
+      <input id="password" type="password" minlength="8" autocomplete="current-password" required>
+      <button class="primary" id="submitBtn" type="submit">Log in</button>
+    </form>
+
+    <p class="divider">or</p>
+    <button class="wallet" id="ethBtn" type="button">Continue with Ethereum</button>
+    <button class="wallet" id="solBtn" type="button">Continue with Solana</button>
+  </section>
+
+  <section id="profileView" hidden>
+    <h1>You're signed in</h1>
+    <dl id="profile"></dl>
+    <button class="primary" id="logoutBtn" type="button">Log out</button>
+  </section>
+
+  <p id="msg" role="status" aria-live="polite"></p>
+</main>
+
+<script>
+  // ---- CONFIG: replace WORKER_URL with your deployed Worker URL ----
+  const WORKER_URL = 'https://bold-water-a77d.j-proxy-services.workers.dev';
+  const SUPABASE_URL = 'https://xvckksduwyydrpxruwph.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_stsvxiKIvR02q5RqXHJiMQ_BwUNU1f2';
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const $ = (id) => document.getElementById(id);
+  let mode = 'login';
+
+  function say(text, type) { const m = $('msg'); m.textContent = text; m.className = type || ''; }
+
+  function setMode(next) {
+    mode = next;
+    const reg = next === 'register';
+    $('tabLogin').setAttribute('aria-selected', !reg);
+    $('tabRegister').setAttribute('aria-selected', reg);
+    $('nameRow').hidden = !reg;
+    $('submitBtn').textContent = reg ? 'Create account' : 'Log in';
+    $('password').autocomplete = reg ? 'new-password' : 'current-password';
+    say('');
+  }
+  $('tabLogin').onclick = () => setMode('login');
+  $('tabRegister').onclick = () => setMode('register');
+
+  async function showProfile() {
+    // RLS returns only the signed-in user's own row
+    const { data, error } = await sb.from('profiles').select('*').maybeSingle();
+    if (error) { say('Signed in, but the profile could not be loaded: ' + error.message, 'err'); return; }
+    const rows = data ? [
+      ['Name', data.display_name], ['Email', data.email],
+      ['Wallet', data.wallet_address], ['Chain', data.wallet_chain]
+    ].filter(r => r[1]) : [['Status', 'Profile is being created. Refresh in a moment.']];
+    $('profile').innerHTML = '';
+    rows.forEach(([k, v]) => {
+      const dt = document.createElement('dt'); dt.textContent = k;
+      const dd = document.createElement('dd'); dd.textContent = v;
+      $('profile').append(dt, dd);
+    });
+    $('authView').hidden = true; $('profileView').hidden = false; say('');
+  }
+
+  // Email + password goes through the Worker, then hands the session to supabase-js
+  $('emailForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = $('submitBtn'); btn.disabled = true;
+    say(mode === 'register' ? 'Creating account...' : 'Logging in...');
+    try {
+      const payload = { email: $('email').value, password: $('password').value };
+      if (mode === 'register') payload.display_name = $('name').value;
+      const res = await fetch(`${WORKER_URL}/${mode}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) { say(data.error || 'Request failed.', 'err'); return; }
+      if (mode === 'register') { setMode('login'); say('Account created. Log in to continue.', 'ok'); return; }
+      const { error } = await sb.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
+      if (error) { say(error.message, 'err'); return; }
+      await showProfile();
+// after successful setSession + showProfile
+      window.location.href = 'dashboard.html';
+    } catch { say('Network error. Check your connection and try again.', 'err'); }
+    finally { btn.disabled = false; }
+  });
+
+  // Wallet sign-in runs in the browser because the wallet signs the message there
+  async function walletLogin(chain) {
+    const wallet = chain === 'ethereum' ? window.ethereum : window.solana;
+    if (!wallet) { say(`No ${chain === 'ethereum' ? 'Ethereum' : 'Solana'} wallet found. Install MetaMask or Phantom and reload.`, 'err'); return; }
+    say('Approve the sign-in request in your wallet...');
+    const { error } = await sb.auth.signInWithWeb3({ chain, statement: 'Sign in to this site' });
+    if (error) { say(error.message, 'err'); return; }
+    await showProfile();
+  }
+  $('ethBtn').onclick = () => walletLogin('ethereum');
+  $('solBtn').onclick = () => walletLogin('solana');
+
+  $('logoutBtn').onclick = async () => {
+    await sb.auth.signOut();
+    $('profileView').hidden = true; $('authView').hidden = false; say('Logged out.', 'ok');
+  };
+
+  // Restore an existing session on page load
+  sb.auth.getSession().then(({ data }) => { if (data.session) showProfile(); });
+</script>
+</body>
+</html>
