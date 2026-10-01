@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proxy Services</title>
+<style>
+  :root{--bg:#eef1f4;--panel:#fff;--ink:#14212b;--mute:#5b6b78;--line:#cfd7de;--accent:#0f5c7a;--accent-ink:#fff;--err:#b3261e;--ok:#1b6e3c}
+  @media (prefers-color-scheme:dark){:root{--bg:#0e161c;--panel:#16212a;--ink:#e6edf2;--mute:#8fa1ae;--line:#2a3945;--accent:#5fb8d9;--accent-ink:#06222e;--err:#ff8a80;--ok:#7bd69b}}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--bg);color:var(--ink);font:16px/1.5 "Avenir Next","Segoe UI",system-ui,sans-serif}
+  main{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:32px 28px}
+  h1{font:600 28px/1.2 Georgia,"Times New Roman",serif;margin:0 0 6px}
+  p.sub{margin:0 0 28px;color:var(--mute)}
+  .links{display:flex;flex-direction:column;gap:10px}
+  a.btn{display:block;text-align:center;text-decoration:none;padding:12px 16px;border-radius:6px;font:inherit;font-weight:600;cursor:pointer}
+  a.primary{background:var(--accent);color:var(--accent-ink);border:0}
+  a.secondary{background:none;color:var(--ink);border:1px solid var(--line)}
+  a.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  a.btn:hover{opacity:.92}
+  footer{margin-top:24px;text-align:center;font-size:13px;color:var(--mute)}
+
+  .proxy-notice{margin:20px 0 0;padding:14px 16px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;background:var(--bg);font-size:13px;line-height:1.55}
+  .proxy-notice strong{display:block;color:var(--ink);font-size:14px}
+  .proxy-notice p{margin:8px 0 0;color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Proxy Services</h1>
+  <p class="sub">Sign in to manage and rotate proxies, or open the dashboard if you're already authenticated.</p>
+
+  <div class="links">
+    <a class="btn primary" href="auth.html">Sign in</a>
+    <a class="btn secondary" href="dashboard.html">Open dashboard</a>
+  </div>
+
+
+  <aside class="proxy-notice" aria-labelledby="proxyNoticeTitle">
+    <strong id="proxyNoticeTitle">Third-party proxies · use a VPN</strong>
+    <p>J-Proxy does not own, operate, or manage all proxy nodes available through this service. Some nodes are run by independent third parties, and we cannot guarantee their security, privacy, availability, or logging practices.</p>
+    <p>Keep a trusted VPN enabled in addition to using our proxy service. A VPN adds protection, but does not make an untrusted proxy safe or guarantee anonymity. Use HTTPS for sensitive information.</p>
+  </aside>
+  <footer>Email, Ethereum, or Solana</footer>
+</main>
+</body>
+</html>
