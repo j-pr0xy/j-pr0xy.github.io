@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — J-Proxy</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{--bg:#eef1f4;--panel:#fff;--ink:#14212b;--mute:#5b6b78;--line:#cfd7de;--accent:#0f5c7a;--accent-ink:#fff;--err:#b3261e;--ok:#1b6e3c}
+  @media (prefers-color-scheme:dark){:root{--bg:#0e161c;--panel:#16212a;--ink:#e6edf2;--mute:#8fa1ae;--line:#2a3945;--accent:#5fb8d9;--accent-ink:#06222e;--err:#ff8a80;--ok:#7bd69b}}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--bg);color:var(--ink);font:16px/1.5 "Avenir Next","Segoe UI",system-ui,sans-serif}
+  main{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:28px}
+  h1{font:600 26px/1.2 Georgia,"Times New Roman",serif;margin:0 0 4px}
+  p.sub{margin:0 0 20px;color:var(--mute)}
+  .tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+  .tabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;padding:8px;color:var(--mute);font:inherit;cursor:pointer}
+  .tabs button[aria-selected=true]{color:var(--ink);border-color:var(--accent);font-weight:600}
+  label{display:block;font-size:14px;margin:12px 0 4px}
+  input{width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+  button.primary,button.wallet{width:100%;margin-top:16px;padding:11px;border-radius:6px;font:inherit;font-weight:600;cursor:pointer}
+  button.primary{background:var(--accent);color:var(--accent-ink);border:0}
+  button.wallet{margin-top:8px;background:none;color:var(--ink);border:1px solid var(--line)}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  button:disabled{opacity:.6;cursor:wait}
+  .divider{margin:20px 0 4px;color:var(--mute);font-size:14px;text-align:center}
+  #msg{min-height:1.5em;margin:14px 0 0;font-size:14px}
+  #msg.err{color:var(--err)} #msg.ok{color:var(--ok)}
+  dl{margin:16px 0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+  dt{color:var(--mute)} dd{margin:0;word-break:break-all}
+  [hidden]{display:none!important}
+
+  .proxy-notice{margin:20px 0 0;padding:14px 16px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;background:var(--bg);font-size:13px;line-height:1.55}
+  .proxy-notice strong{display:block;color:var(--ink);font-size:14px}
+  .proxy-notice p{margin:8px 0 0;color:var(--mute)}
+</style>
+<style>:root{color-scheme:dark;--bg:#080c17;--panel:#101727;--ink:#edf1ff;--mute:#a6b1cc;--line:#26324c;--accent:#a8a1ff;--accent-ink:#101127;--err:#ffa39b;--ok:#81e4be;--chip:#1c2540}
+body{background:radial-gradient(ellipse at 85% 0%,#30265366,transparent 45%),radial-gradient(ellipse at 0% 45%,#11354444,transparent 40%),#080c17;color:var(--ink);font-family:Inter,"Segoe UI",system-ui,sans-serif;padding:28px;line-height:1.6}
+a{color:#bcb5ff;text-underline-offset:4px}a:hover{color:#e2ddff}button,a,input,select,textarea{touch-action:manipulation}a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #8ce8df;outline-offset:4px}
+.brand{display:inline-flex;align-items:center;gap:11px;text-decoration:none;font-size:22px;font-weight:750;letter-spacing:-.7px;color:var(--ink)}.brand-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:linear-gradient(145deg,#b2a3ff,#74cce3);color:#0b1325;font-weight:900;font-size:23px;box-shadow:0 0 25px #a191ff22}
+.site-nav{max-width:1160px;margin:0 auto 30px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}.nav-links{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.nav-links a{text-decoration:none;font-size:14px;padding:8px 12px;border-radius:9px}.nav-links a:hover{background:#ffffff08}
+.link-button{display:inline-flex;justify-content:center;align-items:center;gap:10px;padding:12px 19px;border:1px solid var(--line);border-radius:11px;text-decoration:none;font-size:14px;font-weight:650;background:#141e32;color:var(--ink)}.link-button:hover{border-color:#8e87cb;background:#202942;color:white}.link-button.filled{background:linear-gradient(110deg,#aba2ff,#8bbfee);border-color:transparent;color:#0c1426;box-shadow:0 6px 24px #8775eb20}.link-button.donate{background:#29233e;border-color:#6f5892;color:#f0d8ff}
+.wrap{max-width:1160px}main{border-radius:18px;border-color:var(--line);background:#101727e8;box-shadow:0 20px 80px #0002}h1,h2,.panel-title{font-family:inherit;letter-spacing:-.6px}h1{font-weight:700}button,select,input,textarea{border-radius:9px}button{transition:background .15s,border-color .15s}button:hover:not(:disabled){background:#242d49;border-color:#8c88bb}button.primary{background:linear-gradient(110deg,#aba2ff,#8bbfee);color:#0c1426}button.primary:hover:not(:disabled){background:#c4bcff}.card{background:linear-gradient(130deg,#172037,#101727);border-radius:12px;padding:20px}.card h3{font-size:16px}.panel-title{font-size:20px;margin-top:24px}select,input,textarea{background:#0b1222!important}option{background:#101727}th{position:sticky;top:0;background:#151e31}td{vertical-align:top}tr:hover td{background:#a8a1ff06}.proxy-notice{margin:24px 0;padding:18px;border-left:3px solid #9d94e5;background:#14192a;border-radius:10px}.proxy-notice p{line-height:1.6}.jpx-install-bar{background:#141e30;border-radius:12px}.jpx-dialog{border-radius:18px!important;box-shadow:0 25px 100px #0009!important}.jpx-dialog::backdrop{backdrop-filter:blur(5px)}
+.site-footer{max-width:1160px;margin:30px auto 0;border-top:1px solid var(--line);padding:25px 0;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;text-align:left;color:var(--mute);font-size:13px}.site-footer p{margin:0}.site-footer .nav-links{gap:5px}.support-strip{max-width:1160px;margin:24px auto 0;padding:20px 24px;border:1px solid #3e355b;border-radius:14px;background:linear-gradient(100deg,#201c35,#131e31);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}.support-strip p{margin:4px 0 0;color:var(--mute);font-size:14px}.support-strip strong{font-size:17px}
+body.landing{display:block}.landing main{max-width:1160px;margin:auto;padding:0;background:transparent;box-shadow:none;border:0;width:100%}.eyebrow{font:600 11px/1.5 ui-monospace,monospace;letter-spacing:2px;text-transform:uppercase;color:#a8d5e7}.hero{display:grid;grid-template-columns:1.15fr 1fr;gap:55px;align-items:center;padding:60px 0 70px}.hero h1{font-size:clamp(42px,5.4vw,72px);line-height:1.08;letter-spacing:-3px;margin:18px 0 22px;max-width:650px}.gradient-text{color:#bcb0ff}.hero .intro{font-size:18px;color:var(--mute);max-width:550px;line-height:1.8}.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin:28px 0 16px}.caption{font-size:12px;color:var(--mute)}
+.route-art{border:1px solid #393654;border-radius:24px;padding:30px;background:radial-gradient(ellipse at 100% 0,#43325c66,transparent 70%),#111a2b;box-shadow:0 30px 100px #0004;position:relative}.route-art .art-head{display:flex;justify-content:space-between;gap:15px;font-size:11px;letter-spacing:1px;color:var(--mute);text-transform:uppercase}.route-hub{margin:35px auto;width:130px;height:130px;display:grid;place-items:center;border:1px solid #8c82c9;border-radius:50%;box-shadow:0 0 0 12px #b9a7ff08,0 0 0 25px #b9a7ff04,0 0 60px #a58bff22;font-size:26px;font-weight:800;color:#c8bcff}.route-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.route-modes span{background:#0b1224;border:1px solid #2c3954;border-radius:9px;padding:13px 4px;text-align:center;font-size:12px}.route-art p{font-size:13px;text-align:center;color:var(--mute);margin:22px 0 0}
+.section-heading{margin:45px 0 24px;max-width:650px}.section-heading h2{font-size:32px;line-height:1.2;margin:12px 0}.section-heading p{color:var(--mute)}.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.feature{padding:26px;border:1px solid var(--line);border-radius:16px;background:#111929}.feature .number{font:13px ui-monospace,monospace;color:#a5a0e9}.feature h3{font-size:19px;letter-spacing:-.4px;margin:20px 0 10px}.feature p{font-size:14px;color:var(--mute);margin:0}.steps{counter-reset:step;list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:25px;margin:25px 0 55px}.steps li{border-top:1px solid var(--line);padding-top:20px}.steps strong{display:block;font-size:17px;margin-bottom:9px}.steps p{font-size:14px;color:var(--mute);margin:0}.donation-panel{padding:40px;border:1px solid #544369;border-radius:20px;background:radial-gradient(ellipse at 95% 0%,#50316666,transparent 75%),#181c30;margin:55px 0}.donation-panel h2{font-size:34px;line-height:1.2;max-width:560px;margin:12px 0 18px}.donation-panel p{max-width:740px;color:var(--mute)}.donation-panel .link-button{margin-top:10px}.funding-goals{display:flex;gap:9px;flex-wrap:wrap;margin:22px 0}.funding-goals span{font-size:12px;border:1px solid #4e415e;border-radius:30px;padding:7px 12px;color:#d9cdec}
+body.auth-page main{max-width:450px}body.auth-page .site-nav{width:100%;max-width:450px;margin-bottom:20px}body.auth-page{display:flex;flex-direction:column;align-items:center;justify-content:center}body.auth-page .site-footer{max-width:450px;width:100%}
+@media(max-width:760px){body{padding:18px}.hero{grid-template-columns:1fr;gap:30px;padding:25px 0 35px}.hero h1{letter-spacing:-1.8px}.feature-grid,.steps{grid-template-columns:1fr}.route-art{max-width:500px;width:100%;box-sizing:border-box}.donation-panel{padding:25px}.site-nav{gap:14px}.nav-links a{padding:7px}.grid2{grid-template-columns:1fr}main{padding:18px}.support-strip{padding:20px}.site-footer{align-items:flex-start}.hero .intro{font-size:16px}.jpx-install-bar{font-size:13px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style></head>
+<body class="auth-page"><nav class="site-nav" aria-label="Main navigation"><a class="brand" href="index.html" aria-label="J-Proxy home"><span class="brand-mark" aria-hidden="true">J</span> J-Proxy</a><div class="nav-links"><a href="https://chromewebstore.google.com/detail/elpekfpamolanfjlnejhgnfifgnkmcpc?utm_source=item-share-cb" class="" target="_blank" rel="noopener noreferrer">Get extension <span aria-hidden="true">↗</span></a><a href="https://buymeacoffee.com/jproxydonations" class="" target="_blank" rel="noopener noreferrer">Support J-Proxy <span aria-hidden="true">↗</span></a><a href="dashboard.html">Dashboard →</a></div></nav>
+<main>
+  <section id="authView">
+    <div class="eyebrow">Connect your account</div><h1>Welcome to J-Proxy</h1>
+    <p class="sub">Use email or connect a wallet.</p>
+
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabLogin" aria-selected="true">Log in</button>
+      <button role="tab" id="tabRegister" aria-selected="false">Register</button>
+    </div>
+
+    <form id="emailForm">
+      <div id="nameRow" hidden>
+        <label for="name">Display name</label>
+        <input id="name" autocomplete="nickname">
+      </div>
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required>
+      <label for="password">Password</label>
+      <input id="password" type="password" minlength="8" autocomplete="current-password" required>
+      <button class="primary" id="submitBtn" type="submit">Log in</button>
+    </form>
+
+    <p class="divider">or</p>
+    <button class="wallet" id="ethBtn" type="button">Continue with Ethereum</button>
+    <button class="wallet" id="solBtn" type="button">Continue with Solana</button>
+  </section>
+
+
+  <p id="sessionStatus" role="status" aria-live="polite">Connecting extension session…</p>
+    <p id="msg" role="status" aria-live="polite"></p>
+
+  <aside class="proxy-notice" aria-labelledby="proxyNoticeTitle">
+    <strong id="proxyNoticeTitle">Third-party proxies · use a VPN</strong>
+    <p>J-Proxy does not own, operate, or manage all proxy nodes available through this service. Some nodes are run by independent third parties, and we cannot guarantee their security, privacy, availability, or logging practices.</p>
+    <p>Keep a trusted VPN enabled in addition to using our proxy service. A VPN adds protection, but does not make an untrusted proxy safe or guarantee anonymity. Use HTTPS for sensitive information.</p>
+  </aside>
+</main>
+
+<script>
+/* Shared by auth.html and dashboard.html. No credentials are stored by this helper. */
+(() => {
+  'use strict';
+  const ORIGIN='https://j-pr0xy.github.io';
+  const pending=new Map();
+  let client, lastToken=null, verifiedAt=0, chain=Promise.resolve();
+  window.addEventListener('message',event=>{
+    const m=event.data;
+    if(event.source!==window || event.origin!==ORIGIN || m?.source!=='jproxy-extension-v2')return;
+    const request=pending.get(m.id);if(!request)return;
+    pending.delete(m.id);clearTimeout(request.timer);
+    m.ok ? request.resolve(m.result) : request.reject(Error(m.error || 'Extension request failed'));
+  });
+  function request(type,data={}){
+    if(location.origin!==ORIGIN)return Promise.reject(Error('Publish this page at https://j-pr0xy.github.io to link your session.'));
+    return new Promise((resolve,reject)=>{
+      const id=crypto.randomUUID();
+      const timer=setTimeout(()=>{pending.delete(id);reject(Error('Session extension not detected. Install J-Proxy Session Bridge and reload this page.'));},10000);
+      pending.set(id,{resolve,reject,timer});
+      window.postMessage({source:'jproxy-dashboard-v2',id,type,...data},ORIGIN);
+    });
+  }
+  function report(text){const node=document.getElementById('sessionStatus');if(node)node.textContent=text;}
+  function connect(force=false){
+    const work=chain.then(async()=>{
+      if(!client)throw Error('Sign-in client is not ready.');
+      const {data,error}=await client.auth.getSession();if(error)throw error;
+      const token=data.session?.access_token || null;
+      if(!force && token===lastToken && Date.now()-verifiedAt<240000)return;
+      const result=await request(token?'SESSION_SYNC':'SESSION_CLEAR',token?{token}:{});
+      lastToken=token;verifiedAt=Date.now();
+      report(result.session ? `Extension account: ${result.session.email} · session connected` : 'Extension session disconnected. Sign in to use proxies.');
+      return result;
+    });
+    chain=work.catch(()=>{});
+    return work.catch(error=>{report(error.message);throw error;});
+  }
+  async function disconnect(){
+    // Drain pending renewal before clearing so it cannot reattach after logout.
+    await chain;
+    lastToken=null;verifiedAt=0;
+    return request('SESSION_CLEAR');
+  }
+  window.JProxySession={connect,disconnect,start(sb){
+    if(client)return;client=sb;
+    sb.auth.onAuthStateChange(()=>{setTimeout(()=>connect(true).catch(()=>{}),0);});
+    connect(true).catch(()=>{});
+    setInterval(()=>{if(!document.hidden)connect().catch(()=>{});},30000);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)connect(true).catch(()=>{});});
+  }};
+})();
+
+</script>
+<script>
+  // ---- CONFIG: replace WORKER_URL with your deployed Worker URL ----
+  const WORKER_URL = 'https://bold-water-a77d.j-proxy-services.workers.dev';
+  const SUPABASE_URL = 'https://xvckksduwyydrpxruwph.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_stsvxiKIvR02q5RqXHJiMQ_BwUNU1f2';
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  JProxySession.start(sb);
+  const $ = (id) => document.getElementById(id);
+  let mode = 'login';
+
+  function say(text, type) { const m = $('msg'); m.textContent = text; m.className = type || ''; }
+
+  function setMode(next) {
+    mode = next;
+    const reg = next === 'register';
+    $('tabLogin').setAttribute('aria-selected', !reg);
+    $('tabRegister').setAttribute('aria-selected', reg);
+    $('nameRow').hidden = !reg;
+    $('submitBtn').textContent = reg ? 'Create account' : 'Log in';
+    $('password').autocomplete = reg ? 'new-password' : 'current-password';
+    say('');
+  }
+  $('tabLogin').onclick = () => setMode('login');
+  $('tabRegister').onclick = () => setMode('register');
+
+  let navigating = false;
+  function goToDashboard() {
+    if (navigating) return;
+    navigating = true;
+    say('Signed in. Opening your dashboard…', 'ok');
+    window.location.replace('dashboard.html');
+  }
+  sb.auth.onAuthStateChange((_event, session) => {
+    if (session) setTimeout(goToDashboard, 0);
+  });
+
+  // Email + password goes through the Worker, then hands the session to supabase-js
+  $('emailForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = $('submitBtn'); btn.disabled = true;
+    say(mode === 'register' ? 'Creating account...' : 'Logging in...');
+    try {
+      const payload = { email: $('email').value, password: $('password').value };
+      if (mode === 'register') payload.display_name = $('name').value;
+      const res = await fetch(`${WORKER_URL}/${mode}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) { say(data.error || 'Request failed.', 'err'); return; }
+      if (mode === 'register') { setMode('login'); say('Account created. Log in to continue.', 'ok'); return; }
+      const { error } = await sb.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
+      if (error) { say(error.message, 'err'); return; }
+      goToDashboard();
+    } catch { say('Network error. Check your connection and try again.', 'err'); }
+    finally { btn.disabled = false; }
+  });
+
+  // Wallet sign-in runs in the browser because the wallet signs the message there
+  async function walletLogin(chain) {
+    const wallet = chain === 'ethereum' ? window.ethereum : window.solana;
+    if (!wallet) { say(`No ${chain === 'ethereum' ? 'Ethereum' : 'Solana'} wallet found. Install MetaMask or Phantom and reload.`, 'err'); return; }
+    $('ethBtn').disabled = true; $('solBtn').disabled = true;
+    say('Approve the sign-in request in your wallet…');
+    try {
+      const { data, error } = await sb.auth.signInWithWeb3({ chain, statement: 'Sign in to J-Proxy' });
+      if (error) throw error;
+      if (!data?.session) throw new Error('No session was returned. Please try signing in again.');
+      goToDashboard();
+    } catch (error) { say(error.message || 'Wallet sign-in failed. Please try again.', 'err'); }
+    finally { $('ethBtn').disabled = false; $('solBtn').disabled = false; }
+  }
+  $('ethBtn').onclick = () => walletLogin('ethereum');
+  $('solBtn').onclick = () => walletLogin('solana');
+
+  // Restore the saved session without waiting on profile data or the extension.
+  sb.auth.getSession().then(({ data, error }) => {
+    if (error) { say('Could not restore your session. Please sign in again.', 'err'); return; }
+    if (data.session) goToDashboard();
+  }).catch(() => say('Could not restore your session. Please sign in again.', 'err'));
+</script>
+<footer class="site-footer"><p><strong>J-Proxy</strong><br>Independent tools. A community-supported future.</p><nav class="nav-links" aria-label="Footer"><a href="https://chromewebstore.google.com/detail/elpekfpamolanfjlnejhgnfifgnkmcpc?utm_source=item-share-cb" class="" target="_blank" rel="noopener noreferrer">Chrome extension <span aria-hidden="true">↗</span></a><a href="https://buymeacoffee.com/jproxydonations" class="" target="_blank" rel="noopener noreferrer">Donate <span aria-hidden="true">↗</span></a><a href="https://github.com/j-pr0xy/j-pr0xy.github.io/blob/main/README.md" class="" target="_blank" rel="noopener noreferrer">Privacy policy <span aria-hidden="true">↗</span></a></nav></footer></body>
+</html>
